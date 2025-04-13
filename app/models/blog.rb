@@ -15,6 +15,14 @@ class Blog < ApplicationRecord
 
   scope :default_order, -> { order(id: :desc) }
 
+  def visible_to?(current_user)
+    if secret
+      raise ActiveRecord::RecordNotFound unless user == current_user
+    else
+      Blog
+    end
+  end
+
   def owned_by?(target_user)
     user == target_user
   end
