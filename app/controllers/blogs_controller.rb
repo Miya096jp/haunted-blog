@@ -56,7 +56,7 @@ class BlogsController < ApplicationController
   def reject_unauthorized_random_eyecatch
     return unless blog_params[:random_eyecatch] && !current_user.premium
 
-    redirect_to blog_url
+    redirect_to blogs_url, notice: 'Premium only!', status: :found
   end
 
   def blog_params
