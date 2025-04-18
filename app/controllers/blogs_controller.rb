@@ -2,7 +2,7 @@
 
 class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
-  before_action :set_blog, only: %i[show]
+
   before_action :set_current_user_blog, only: %i[edit update destroy]
   before_action :reject_unauthorized_random_eyecatch, only: %i[create update]
 
@@ -10,7 +10,10 @@ class BlogsController < ApplicationController
     @blogs = Blog.search(params[:term]).published.default_order
   end
 
-  def show; end
+  def show
+    @blog = Blog.find(params[:id])
+    @blog.visible_to?(current_user)
+  end
 
   def new
     @blog = Blog.new
@@ -44,19 +47,12 @@ class BlogsController < ApplicationController
 
   private
 
-  def set_blog
-    @blog = Blog.find(params[:id])
-    @blog.visible_to?(current_user)
-  end
-
   def set_current_user_blog
     @blog = current_user.blogs.find(params[:id])
   end
 
   def reject_unauthorized_random_eyecatch
-    return unless blog_params[:random_eyecatch] && !current_user.premium
-
-    redirect_to blogs_url, notice: 'Premium only!', status: :found
+    params[:blog][:random_eyecatch] = false if blog_params[:random_eyecatch] && !current_user.premium
   end
 
   def blog_params
