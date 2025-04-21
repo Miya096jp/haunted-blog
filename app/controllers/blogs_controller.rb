@@ -53,9 +53,7 @@ class BlogsController < ApplicationController
 
   def check_params
     if blog_params[:random_eyecatch] && !current_user.premium
-      copied = params.dup
-      copied[:blog][:random_eyecatch] = false
-      copied.require(:blog).permit(:title, :content, :secret, :random_eyecatch)
+      blog_params[:random_eyecatch] = { random_eyecatch: false }
     else
       blog_params
     end
