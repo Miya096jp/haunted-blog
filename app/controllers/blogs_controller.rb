@@ -52,41 +52,10 @@ class BlogsController < ApplicationController
   end
 
   def check_params
-    if blog_params[:random_eyecatch] && !current_user.premium
-      if params[:id]
-        build_safe_update_params
-      else
-        build_safe_create_params
-      end
+    if params[:blog][:random_eyecatch] && !current_user.premium
+      params.require(:blog).permit(:title, :content, :secret)
     else
-      blog_params
+      params.require(:blog).permit(:title, :content, :secret, :random_eyecatch)
     end
-  end
-
-  def build_safe_update_params
-    ActionController::Parameters.new({
-                                       blog: {
-                                         title: blog_params[:title],
-                                         content: blog_params[:content],
-                                         secret: blog_params[:secret],
-                                         random_eyecatch: false
-                                       },
-                                       id: params[:id]
-                                     }).permit(:id, :title, :content, :secret, :random_eyecatch)
-  end
-
-  def build_safe_create_params
-    ActionController::Parameters.new({
-                                       blog: {
-                                         title: blog_params[:title],
-                                         content: blog_params[:content],
-                                         secret: blog_params[:secret],
-                                         random_eyecatch: false
-                                       }
-                                     }).permit(:title, :content, :secret, :random_eyecatch)
-  end
-
-  def blog_params
-    params.require(:blog).permit(:title, :content, :secret, :random_eyecatch)
   end
 end
