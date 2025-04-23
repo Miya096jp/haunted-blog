@@ -4,6 +4,7 @@ class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
   before_action :set_current_user_blog, only: %i[edit update destroy]
+  before_action :blog_params, only: %i[create update]
 
   def index
     @blogs = Blog.search(params[:term]).published.default_order
@@ -20,8 +21,7 @@ class BlogsController < ApplicationController
   def edit; end
 
   def create
-    checked_params = check_params
-    @blog = current_user.blogs.new(checked_params)
+    @blog = current_user.blogs.new(blog_params)
 
     if @blog.save
       redirect_to blog_url(@blog), notice: 'Blog was successfully created.'
@@ -31,8 +31,7 @@ class BlogsController < ApplicationController
   end
 
   def update
-    checked_params = check_params
-    if @blog.update(checked_params)
+    if @blog.update(blog_params)
       redirect_to blog_url(@blog), notice: 'Blog was successfully updated.'
     else
       render :edit, status: :unprocessable_entity
@@ -51,11 +50,9 @@ class BlogsController < ApplicationController
     @blog = current_user.blogs.find(params[:id])
   end
 
-  def check_params
-    if params[:blog][:random_eyecatch] && !current_user.premium
-      params.require(:blog).permit(:title, :content, :secret)
-    else
-      params.require(:blog).permit(:title, :content, :secret, :random_eyecatch)
-    end
+  def blog_params
+    attributes = %i[title content secret]
+    attributes.push(:random_eyecatch) if current_user.premium
+    params.require(:blog).permit(attributes)
   end
 end
