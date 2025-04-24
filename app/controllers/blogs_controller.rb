@@ -4,7 +4,6 @@ class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
   before_action :set_current_user_blog, only: %i[edit update destroy]
-  before_action :blog_params, only: %i[create update]
 
   def index
     @blogs = Blog.search(params[:term]).published.default_order
@@ -53,6 +52,6 @@ class BlogsController < ApplicationController
   def blog_params
     attributes = %i[title content secret]
     attributes.push(:random_eyecatch) if current_user.premium
-    params.require(:blog).permit(attributes)
+    params.require(:blog).permit(*attributes)
   end
 end
